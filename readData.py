@@ -14,7 +14,7 @@ def get_info(path):
         age = num_list[1]
         value = (filename,age)
         info_list.append(value)
-    info_df = pd.DataFrame(info_list,column_name)
+    info_df = pd.DataFrame(info_list,columns = column_name)
     return info_df
 
 if __name__ == "__main__":
