@@ -8,6 +8,12 @@ Original Code: https://github.com/shenwei1231/caffe-DeepRegressionForests
 
 The original version utilize the caffe to implement the whole project, which needs a lot of effort to implement the conv functions. I decided to reimplement the algorithm with pytorch version code
 
+    @inproceedings{shen2018DRFs,
+        author = {Wei Shen and Yilu Guo and Yan Wang and Kai Zhao and Bo Wang and Alan Yuille},
+        booktitle = {Proc. CVPR},
+        title = {Deep Regression Forests for Age Estimation},
+        year = {2018}
+    }
 # Initialize
 Firstly, download the codes with following command:
 
