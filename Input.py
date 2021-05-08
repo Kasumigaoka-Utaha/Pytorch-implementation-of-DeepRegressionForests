@@ -35,7 +35,7 @@ class ImgAugTransform:
 class FaceDataset(Dataset):
     def __init__(self, data_dir, data_type, img_size=224, augment=False, age_stddev=1.0):
         assert(data_type in ("train", "valid", "test"))
-        csv_path = Path(data_dir).joinpath(f"gt_avg_{data_type}.csv")
+        csv_path = Path('./').joinpath(f"imgs_{data_type}.csv")
         img_dir = Path(data_dir).joinpath(data_type)
         self.img_size = img_size
         self.augment = augment
