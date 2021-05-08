@@ -10,9 +10,10 @@ The original version utilize the caffe to implement the whole project, which nee
 
 # Create environment
 You can follow the followwing code to create environment:
-  conda create -n drf python==3.7.9
-  conda activate drf
-  pip install -r requirements.txt
+
+    conda create -n drf python==3.7.9
+    conda activate drf
+    pip install -r requirements.txt
 
 # Dataset 
 In this project, I decided to use FGNET for a light training process. You can preprocess the dataset with 
@@ -21,7 +22,7 @@ As for splitting the datasat to the training set and test set, I choose to direc
 
 # Training
 You can train the model by 
-  python train.py
+    python train.py
 
 # Details
 Further information will be updated soon.
