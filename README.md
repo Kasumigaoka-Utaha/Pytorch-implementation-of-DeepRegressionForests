@@ -45,5 +45,41 @@ You can train the model by
 
     python train.py --data_dir ./FGNET/images
 
+# Experiment Results
+Test Dataset: FGNET
+
+Initial random setting performance:
+
+    Weight_decay = 5e-4
+    Momentum = 0.9
+    Learning rate = 0.1 with no step variance
+    Best_acc = 0.0368
+    Best_mae = 9.831
+
+Adam training performance (Experiment will be implemented further):
+
+    TRAIN.LR_DECAY_STEP = 20
+    TRAIN.LR_DECAY_RATE = 0.2
+    TRAIN.MOMENTUM = 0.9
+    TRAIN.WEIGHT_DECAY = 0.0
+    TRAIN.LR = 0.001
+    Best_acc = 0.0675
+    Best_mae = 19.162
+
+SGD training performance:
+Experiment 1: modify initial learning rate:
+
+    TRAIN.LR_DECAY_STEP = 20
+    TRAIN.LR_DECAY_RATE = 0.2
+    TRAIN.MOMENTUM = 0.9
+    TRAIN.WEIGHT_DECAY = 0.0
+    
+|Initial learning rate|Best_acc|Best_mae|
+|0.01|0.0368|13.258|
+|0.1|0.0675|9.49|
+|0.08|0.0368|9.409|
+|0.07|0.0675|9.445|
+|0.085|0.0675|9.456|
+
 # Details
 Further information will be updated soon.
