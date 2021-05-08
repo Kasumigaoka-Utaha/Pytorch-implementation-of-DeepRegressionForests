@@ -9,7 +9,7 @@ Original Code: https://github.com/shenwei1231/caffe-DeepRegressionForests
 The original version utilize the caffe to implement the whole project, which needs a lot of effort to implement the conv functions. I decided to reimplement the algorithm with pytorch version code
 
 # Create environment
-You can follow the followwing code to create environment:
+You can follow the following code to create environment:
 
     conda create -n drf python==3.7.9
     conda activate drf
