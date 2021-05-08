@@ -22,6 +22,7 @@ As for splitting the datasat to the training set and test set, I choose to direc
 
 # Training
 You can train the model by 
+
     python train.py
 
 # Details
