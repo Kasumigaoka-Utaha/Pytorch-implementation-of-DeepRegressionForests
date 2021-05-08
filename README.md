@@ -75,6 +75,7 @@ Experiment 1: modify initial learning rate:
     TRAIN.WEIGHT_DECAY = 0.0
 
 |Initial learning rate|Best_acc|Best_mae|
+|----|-----|
 |0.01|0.0368|13.258|
 |0.1|0.0675|9.49|
 |0.08|0.0368|9.409|
