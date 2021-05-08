@@ -73,7 +73,10 @@ Experiment 1: modify initial learning rate:
     TRAIN.LR_DECAY_RATE = 0.2
     TRAIN.MOMENTUM = 0.9
     TRAIN.WEIGHT_DECAY = 0.0
-    
+
+****
+
+
 |Initial learning rate|Best_acc|Best_mae|
 |0.01|0.0368|13.258|
 |0.1|0.0675|9.49|
@@ -81,5 +84,7 @@ Experiment 1: modify initial learning rate:
 |0.07|0.0675|9.445|
 |0.085|0.0675|9.456|
 
+
+****
 # Details
 Further information will be updated soon.
