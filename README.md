@@ -85,5 +85,8 @@ Experiment 1: modify initial learning rate:
 |Initial learning rate|Best_acc|Best_mae|
 |0.01|0.0368|13.258|
 
+|语法|效果|
+|----|-----|
+
 # Details
 Further information will be updated soon.
