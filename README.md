@@ -24,12 +24,15 @@ In this project, I decided to use FGNET for a light training process. You can do
 You can preprocess the dataset with 
 
     python readData.py
+    
+The results were saved in the info.csv and the split results were saved in imgs_train.csv and imgs_test.csv.
+
 As for splitting the datasat to the training set and test set, I choose to directly split the images directly. The training set contains 839 images and the test set contains 163 images.
 
 # Training
 You can train the model by 
 
-    python train.py
+    python train.py --data_dir ./FGNET/images
 
 # Details
 Further information will be updated soon.
