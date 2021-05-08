@@ -16,7 +16,12 @@ You can follow the followwing code to create environment:
     pip install -r requirements.txt
 
 # Dataset 
-In this project, I decided to use FGNET for a light training process. You can preprocess the dataset with 
+In this project, I decided to use FGNET for a light training process. You can download the dataset via
+
+    wget http://yanweifu.github.io/FG_NET_data/FGNET.zip
+    unzip FGNET.zip
+
+You can preprocess the dataset with 
 
     python readData.py
 As for splitting the datasat to the training set and test set, I choose to directly split the images directly. The training set contains 839 images and the test set contains 163 images.
