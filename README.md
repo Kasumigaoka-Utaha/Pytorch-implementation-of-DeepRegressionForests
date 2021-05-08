@@ -45,7 +45,7 @@ You can train the model by
 
     python train.py --data_dir ./FGNET/images
 
-# Experiment Results
+# Experiment Training Results
 Test Dataset: FGNET
 
 Initial random setting performance:
@@ -82,10 +82,28 @@ Experiment 1: modify initial learning rate:
 |0.07|0.0675|9.445|
 |0.085|0.0675|9.456|
 
+Experiment 2: modify decay rate
+
+    TRAIN.LR_DECAY_STEP = 20
+    TRAIN.LR = 0.8
+    TRAIN.MOMENTUM = 0.9
+    TRAIN.WEIGHT_DECAY = 0.0
+    
 |Initial learning rate|Best_acc|Best_mae|
-|0.01|0.0368|13.258|
+|----|-----|-----|
+|0.1|0.0675|9.458|
+|0.2|0.0368|9.409|
 
+Exepriment 3: modify the momentum (will be udated later)
 
+Experiment 4: modify the weight decay (will be updated later)
+
+# Further Plans
+These are some of my further plans:
+
+    1. Modify the other hyperparameters
+    2. Try to use another dataset instead of FGNET (current dataset is too small)
+    3. Try to modify the DeepRegressionForest structure
 
 # Details
 Further information will be updated soon.
