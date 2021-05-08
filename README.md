@@ -81,5 +81,10 @@ Experiment 1: modify initial learning rate:
 |0.07|0.0675|9.445|
 |0.085|0.0675|9.456|
 
+|语法|效果|
+|----|-----|
+|`[我的简介](/example/profile.md)`|[我的简介](/example/profile.md)|
+|`[example](./example)`|[example](./example)|
+
 # Details
 Further information will be updated soon.
