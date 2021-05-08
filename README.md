@@ -8,6 +8,11 @@ Original Code: https://github.com/shenwei1231/caffe-DeepRegressionForests
 
 The original version utilize the caffe to implement the whole project, which needs a lot of effort to implement the conv functions. I decided to reimplement the algorithm with pytorch version code
 
+# Initialize
+Firstly, download the codes with following command:
+
+    git clone --recursive https://github.com.cnpmjs.org/Kasumigaoka-Utaha/Pytorch-implementation-of-DeepRegressionForests
+    cd Pytorch-implementation-of-DeepRegressionForests
 # Create environment
 You can follow the following code to create environment:
 
