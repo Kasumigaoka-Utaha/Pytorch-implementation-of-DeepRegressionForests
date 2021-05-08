@@ -112,14 +112,12 @@ def main():
 
   parser = argparse.ArgumentParser(description='DRF')
   parser.add_argument("--data_dir", type=str, required=True, help="Data root directory")
-  parser.add_argument("--resume", type=str, default=None, help="Resume from checkpoint if any")
-  parser.add_argument("--checkpoint", type=str, default="checkpoint", help="Checkpoint directory")
-  parser.add_argument('--nout', type=int, required=False, default=128)
-  parser.add_argument('--save', type=str, required=False, default='model')
+  #parser.add_argument("--resume", type=str, default=None, help="Resume from checkpoint if any")
+  #parser.add_argument("--checkpoint", type=str, default="checkpoint", help="Checkpoint directory")
+  #parser.add_argument('--nout', type=int, required=False, default=128)
+  #parser.add_argument('--save', type=str, required=False, default='model')
   args=parser.parse_args()
 
-  #testdir = './data/morph/'  #directory for test dataset
-  #traindir = './data/morph/' #directory for train dataset
 
 
   # some useful options ##
