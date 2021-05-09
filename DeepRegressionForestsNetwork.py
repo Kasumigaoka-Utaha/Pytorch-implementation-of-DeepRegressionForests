@@ -91,8 +91,6 @@ class getFeature(nn.Module):
 def gaussian_func(y, mu, sigma):
     samples = y.shape[0]
     num_tree, leaf_num, _, _ = mu.shape
-    #res = torch.zeros(samples, num_tree, leaf_num)
-    #print(y.shape)
     y = np.reshape(y, [samples, 1, 1])
     y = np.repeat(y, num_tree, 1)
     y = np.repeat(y, leaf_num, 2)   
@@ -159,10 +157,10 @@ class Tree(nn.Module):
         choose_node = np.random.choice(np.arange(input_feature), self.leaf_num-1, replace=False)
         self.feature = features[choose_node].T
         self.feature = Parameter(torch.from_numpy(self.feature).type(torch.FloatTensor),requires_grad=False)
-        if not self.feature.is_cuda:
-            self.feature = self.feature.cuda()
 
     def forward(self,x):
+        if x.is_cuda and not self.feature.is_cuda:
+            self.feature = self.feature.cuda()
         temp = torch.mm(x,self.feature)
         deter = nn.Sigmoid(temp)
         deter = torch.unsqueeze(deter,2)
