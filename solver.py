@@ -66,14 +66,14 @@ class solver():
     def get_loss(self,x,y):
         pred,preds = self.forward(x)
         loss = self.criterion(pred,y)
-        return loss,preds
+        return loss,pred,preds
     
     def backward_theta(self,x,y):
-        loss, pred4Pi = self.get_loss(x, y)
+        loss,pred,pred4Pi = self.get_loss(x, y)
         loss.backward()
         self.optim.zero_grad()
         self.optim.step()
-        return loss.item(), pred4Pi
+        return loss.item(),pred,pred4Pi
 
     def backward_pifunc(self,x,y):
         self.model.forest.pi.update_leaf(x,y)
@@ -90,8 +90,7 @@ class solver():
             for x, y in _tqdm:
                 x = x.to(device)
                 y = y.to(device)
-                outputs,_ = self.forward(x)
-                cur_loss,_ = self.backward_theta(x,y)
+                cur_loss,outputs,_ = self.backward_theta(x,y)
                 self.backward_pifunc(x,y)
                 _, predicted = outputs.max(1)
                 correct_num = predicted.eq(y).sum().item()
