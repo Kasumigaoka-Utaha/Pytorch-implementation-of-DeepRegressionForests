@@ -89,8 +89,6 @@ class getFeature(nn.Module):
         return out
 
 def gaussian_func(y, mu, sigma):
-    #y has the shape of [samples, 1]
-    #only for 1d gaussian
     samples = y.shape[0]
     num_tree, leaf_num, _, _ = mu.shape
     #res = torch.zeros(samples, num_tree, leaf_num)
