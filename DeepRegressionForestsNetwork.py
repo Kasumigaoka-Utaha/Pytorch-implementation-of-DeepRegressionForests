@@ -85,7 +85,7 @@ class getFeature(nn.Module):
         out = self.fc7(out)
         out = self.relu15(out)
         out = self.drop7(out)
-        out = self.fc8(out)
+        out = self.fc8(out) #[4,128]
         return out
 
 def gaussian_func(y, mu, sigma):
@@ -95,24 +95,23 @@ def gaussian_func(y, mu, sigma):
     y = np.reshape(y, [samples, 1, 1])
     y = np.repeat(y, num_tree, 1)
     y = np.repeat(y, leaf_num, 2)   
-    mu = np.reshape(mu, [1, num_tree, leaf_num])
-    mu = mu.repeat(samples, 0)
+    mu = np.reshape(mu, [1, num_tree, leaf_num]) 
+    mu = mu.repeat(samples, 0) # mean matrix
     sigma = np.reshape(sigma, [1, num_tree, leaf_num])
-    sigma = sigma.repeat(samples, 0)  
+    sigma = sigma.repeat(samples, 0) # covariance matrix
     res = 1.0 / np.sqrt(2 * 3.14 * (sigma + 1e-9)) * \
          (np.exp(- (y - mu) ** 2 / (2 * (sigma + 1e-9))) + 1e-9)
     return res
 
 class pi_func():
     # leaf node distribution
-    def __init__(self,num_tree,depth,task_num=1,iter_num=20,samples=50*16):
+    def __init__(self,num_tree,depth,task_num=1,iter_num=20):
         super(pi_func, self).__init__()
         self.num_node = pow(2,depth-1)
         self.num_tree = num_tree
-        self.mean = np.random.rand(num_tree, self.num_node, task_num, 1).astype(np.float32)
-        self.sigma = np.random.rand(num_tree, self.num_node, task_num, task_num).astype(np.float32)
-        self.iter_num = iter_num
-        self.samples = samples
+        self.mean = np.random.rand(num_tree, self.num_node, task_num, 1).astype(np.float32) # mean matrix
+        self.sigma = np.random.rand(num_tree, self.num_node, task_num, task_num).astype(np.float32) # covariance matrix
+        self.iter_num = iter_num # num iterations
 
     def init_kmeans(self,mean,sigma): 
     # functions for init mean and sigma, but not used in this project
@@ -156,31 +155,29 @@ class Tree(nn.Module):
         # randomly choose a feature at one dimension within the range of nout
         choose_node = np.random.choice(np.arange(input_feature), self.leaf_num-1, replace=False)
         self.feature = features[choose_node].T
-        self.feature = Parameter(torch.from_numpy(self.feature).type(torch.FloatTensor),requires_grad=False)
+        self.feature = Parameter(torch.from_numpy(self.feature).type(torch.FloatTensor),requires_grad=False) #[128,31]
 
     def forward(self,x):
         # to compute the probability of sample x falling into leaf node l, use formula(2)
         if x.is_cuda and not self.feature.is_cuda:
             self.feature = self.feature.cuda()
-        #print('feature size is',self.feature.size())
-        temp = torch.mm(x,self.feature)
-        #print('temp size is ',temp.size())
-        deter = torch.sigmoid(temp)
-        deter = torch.unsqueeze(deter,2)
+        temp = torch.mm(x,self.feature) #[4,31]
+        deter = torch.sigmoid(temp) #[4,31]
+        deter = torch.unsqueeze(deter,2) #[4,31,1]
         deter_inv = 1-deter
-        deter = torch.cat((deter,deter_inv),dim=2)
+        deter = torch.cat((deter,deter_inv),dim=2) #[4,31,2]
         batch_size = x.size()[0]
-        _mu = Variable(x.data.new(batch_size,1,1).fill_(1.))
+        _mu = Variable(x.data.new(batch_size,1,1).fill_(1.)) #[4,1,1]
         begin_idx = 0
         end_idx = 1
         # compute the route probability for the tree
         for n_layer in range(0, self.depth - 1):
-            _mu = _mu.view(batch_size,-1,1).repeat(1,1,2)
-            _deter = deter[:, begin_idx:end_idx, :]  
-            _mu = _mu*_deter
+            _mu = _mu.view(batch_size,-1,1).repeat(1,1,2) #[4,1,2] --> [4,2,2] --> [4,4,2] --> ... -->[4,32,2]
+            _deter = deter[:, begin_idx:end_idx, :]  #[4,1,2] --> [4,2,2] --> [4,4,2] --> ... -->[4,32,2]
+            _mu = _mu*_deter #[4,1,2] --> [4,2,2] --> [4,4,2] --> ... -->[4,32,2]
             begin_idx = end_idx
             end_idx = begin_idx + 2 ** (n_layer+1)
-        mu = _mu.view(batch_size,self.leaf_num)
+        mu = _mu.view(batch_size,self.leaf_num) #[4,32]
         return mu
 
        
@@ -197,15 +194,15 @@ class Forest(nn.Module):
         self.pi = pi_func(num_tree,depth)
 
     def forward(self,x):
-        # compute the conditional probability by formula(3)
+        # compute the conditional probability by formula(3),formula(4)
         probs = []
         for tree in self.trees:
             tree_out = tree(x)
             probs.append(tree_out.unsqueeze(2))
-        pi = self.pi.get_mean()
-        probs = torch.cat(probs,dim=2)
-        prob = probs * pi.transpose(0, 1).unsqueeze(0)     
-        prob = torch.sum(prob, dim=1) 
+        pi = self.pi.get_mean() #[5,32]
+        probs = torch.cat(probs,dim=2) #[4,32,5]
+        prob = probs * pi.transpose(0, 1).unsqueeze(0)  # [4,32,5] calculate the conditional probability
+        prob = torch.sum(prob, dim=1) #[4,5] sum the results and got a final pred result
         return prob, probs
         
 
