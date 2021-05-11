@@ -52,7 +52,7 @@ class solver():
         model = model.to(device)
         # set the optimizer and the scheduler
         if device == 'cuda':
-            model = torch.nn.DataParallel(model)
+            model = nn.DataParallel(model)
             cudnn.benchmark = True
         if cfg.TRAIN.OPT == "sgd":
             optimizer = optim.SGD(self.model.feature_net.parameters(), lr=cfg.TRAIN.LR,momentum=cfg.TRAIN.MOMENTUM,weight_decay=cfg.TRAIN.WEIGHT_DECAY)
