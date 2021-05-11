@@ -62,19 +62,41 @@ Basic hyperparameters:
 
 |Initial learning rate|Best_cs|Best_mae|
 |----|-----|-----|
-|0.01|0.356|5.18|
+|0.01|0.356|7.18|
 |0.1|0.675|4.68|
 |0.09|0.724|4.538|
 |0.085|0.692|4.585|
 
+Experiment 2: modify the momentum
+
+Basic hyperparameters:
     
+    TRAIN.LR_DECAY_STEP = 20
+    TRAIN.LR_DECAY_RATE = 0.2
+    TRAIN.LR = 0.09
+    TRAIN.WEIGHT_DECAY = 0.0
+
+|Momentum|Best_cs|Best_mae|
+|----|-----|-----|
+|0.9|0.724|4.538|
+|0.85|0.711|4.551|
+|0.8|0.724|4.538|
+
+
+Current best hyperparameters:
+
+    TRAIN.LR_DECAY_STEP = 20
+    TRAIN.LR_DECAY_RATE = 0.2
+    TRAIN.LR = 0.09
+    TRAIN.WEIGHT_DECAY = 0.0
+    TRAIN.MOMENTUM = 0.9
 
 # Further Plans
 These are some of my further plans:
 
-    1. Modify the other hyperparameters
+    1. Modify the other hyperparameters, lr_decay_rate, lr_decay_step
     2. Try to use another dataset instead of FGNET (current dataset is too small)
-    3. Try to modify the DeepRegressionForest structure
+    3. Try to modify the DeepRegressionForest structure 
 
 # Details
 Further information will be updated soon.
