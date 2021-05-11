@@ -67,11 +67,13 @@ class solver():
         return pred,preds
 
     def get_loss(self,x,y):
+        # loss calculation
         pred,preds = self.forward(x)
         loss = torch.sum(0.5 * (y.view(-1, 1)-pred) ** 2)/x.shape[0]
         return loss,pred,preds
     
     def backward_theta(self,x,y):
+        # update the get feature network
         self.optim.zero_grad()
         loss,pred,pred4Pi = self.get_loss(x, y)
         loss.backward()
@@ -79,14 +81,14 @@ class solver():
         return loss.item(),pred,pred4Pi
 
     def backward_pifunc(self,x,y):
+        # update the pi 
         self.model.forest.pi.update_leaf(x,y)
 
-    def update_lr(self):
-        self.scheduler.step()
-
     def train(self,train_loader,epoch,device):
+        # training process on solver per epoch
         print('\nTraining Epoch: %d' % epoch)
         self.model.train()
+        # recorder
         loss_data = Average_data()
         accuracy_data = Average_data()
         with tqdm(train_loader) as _tqdm:
@@ -95,10 +97,10 @@ class solver():
             for x, y in _tqdm:
                 x = x.to(device)
                 y = y.to(device)
+                # update the theta for every single minibatch
                 cur_loss,outputs,pred4Pi = self.backward_theta(x,y)
                 update_leaf_pred.append(pred4Pi)
                 update_leaf_label.append(y.view(-1, 1))
-                
                 _, predicted = outputs.max(1)
                 correct_num = predicted.eq(y).sum().item()
                 # measure accuracy and record loss
@@ -107,13 +109,16 @@ class solver():
                 accuracy_data.update(correct_num, sample_num)
                 _tqdm.set_postfix(OrderedDict(stage="train", epoch=epoch, loss=loss_data.avg),
                                 acc=accuracy_data.avg, correct=correct_num, sample_num=sample_num)
+            # update the pi for every epoch
             update_pred = torch.cat(update_leaf_pred, dim=0).transpose(1, 2).detach().cpu().numpy()
             update_label = torch.cat(update_leaf_label, dim=0).detach().cpu().numpy()
             self.backward_pifunc(update_pred,update_label)
+        # modify the lr for every epoch
         self.scheduler.step()   
         return loss_data.avg, accuracy_data.avg
 
     def test(self,test_loader,epoch,device):
+        # test after every epoch
         mae = 0.0
         total_num = 0
         kl = 0
@@ -127,6 +132,7 @@ class solver():
                 pred = torch.mean(pred, dim=1)
                 mae += torch.sum(torch.abs(y - pred)).item()
                 kl += torch.sum(torch.abs(y-pred) < 5).item()
+            # calculate cs and mae
             res_mae = mae /total_num
             res_kl = kl/ total_num
         return res_kl, res_mae
