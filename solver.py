@@ -56,8 +56,7 @@ class solver():
             optimizer = torch.optim.Adam(feature_net.parameters(), lr=cfg.TRAIN.LR)
         start_epoch = 0
         self.optim = optimizer
-        self.scheduler = StepLR(optimizer, step_size=cfg.TRAIN.LR_DECAY_STEP, gamma=cfg.TRAIN.LR_DECAY_RATE,last_epoch=start_epoch - 1)
-        self.criterion = nn.CrossEntropyLoss().to(device)
+        self.scheduler = StepLR(self.optim, step_size=cfg.TRAIN.LR_DECAY_STEP, gamma=cfg.TRAIN.LR_DECAY_RATE,last_epoch=start_epoch - 1)
     
     def forward(self,x):
         pred,preds = self.model(x)
@@ -65,13 +64,13 @@ class solver():
 
     def get_loss(self,x,y):
         pred,preds = self.forward(x)
-        loss = self.criterion(pred,y)
+        loss = torch.sum(0.5 * (y.view(-1, 1)-pred) ** 2)/x.shape[0]
         return loss,pred,preds
     
     def backward_theta(self,x,y):
+        self.optim.zero_grad()
         loss,pred,pred4Pi = self.get_loss(x, y)
         loss.backward()
-        self.optim.zero_grad()
         self.optim.step()
         return loss.item(),pred,pred4Pi
 
@@ -86,12 +85,18 @@ class solver():
         self.model.train()
         loss_data = Average_data()
         accuracy_data = Average_data()
+        update_leaf_pred = []
+        update_leaf_label = []
         with tqdm(train_loader) as _tqdm:
             for x, y in _tqdm:
                 x = x.to(device)
                 y = y.to(device)
-                cur_loss,outputs,_ = self.backward_theta(x,y)
-                self.backward_pifunc(x,y)
+                cur_loss,outputs,pred4Pi = self.backward_theta(x,y)
+                update_leaf_pred.append(pred4Pi)
+                update_leaf_label.append(y.view(-1, 1))
+                update_pred = torch.cat(update_leaf_pred, dim=0).transpose(1, 2).detach().cpu().numpy()
+                update_label = torch.cat(update_leaf_label, dim=0).detach().cpu().numpy()
+                self.backward_pifunc(update_pred,update_label)
                 _, predicted = outputs.max(1)
                 correct_num = predicted.eq(y).sum().item()
                 # measure accuracy and record loss
@@ -99,46 +104,29 @@ class solver():
                 loss_data.update(cur_loss, sample_num)
                 accuracy_data.update(correct_num, sample_num)
                 _tqdm.set_postfix(OrderedDict(stage="train", epoch=epoch, loss=loss_data.avg),
-                                acc=accuracy_data.avg, correct=correct_num, sample_num=sample_num)    
+                                acc=accuracy_data.avg, correct=correct_num, sample_num=sample_num) 
+        self.scheduler.step()   
         return loss_data.avg, accuracy_data.avg
 
     def test(self,test_loader,epoch,device):
-        self.model.eval()
-        loss_data = Average_data()
-        accuracy_data = Average_data()
-        preds = []
-        gt = []
-        with torch.no_grad():
-            with tqdm(test_loader) as _tqdm:
-                for x, y in _tqdm:
-                    x = x.to(device)
-                    y = y.to(device)
-                    # compute output
-                    outputs,_ = self.forward(x)
-                    preds.append(F.softmax(outputs, dim=-1).cpu().numpy())
-                    gt.append(y.cpu().numpy())
-                    # valid for validation, not used for test
-                    if self.criterion is not None:
-                        # calc loss
-                        loss = self.criterion(outputs, y)
-                        cur_loss = loss.item()
-                        # calc accuracy
-                        _, predicted = outputs.max(1)
-                        correct_num = predicted.eq(y).sum().item()
-                        # measure accuracy and record loss
-                        sample_num = x.size(0)
-                        loss_data.update(cur_loss, sample_num)
-                        accuracy_data.update(correct_num, sample_num)
-                        _tqdm.set_postfix(OrderedDict(stage="val", epoch=epoch, loss=loss_data.avg),
-                                        acc=accuracy_data.avg, correct=correct_num, sample_num=sample_num)
-        preds = np.concatenate(preds, axis=0)
-        gt = np.concatenate(gt, axis=0)
-        ages = np.arange(0, 101)
-        ave_preds = (preds * ages).sum(axis=-1)
-        diff = ave_preds - gt
-        mae = np.abs(diff).mean()
-        return loss_data.avg, accuracy_data.avg, mae
+        mae = 0.0
+        total_num = 0
+        kl = 0
+        with tqdm(test_loader) as _tqdm:
+            for x, y in _tqdm: 
+                total_num += x.shape[0]
+                x = x.to(device)
+                y = y.to(device)
+                self.model.eval()
+                pred, _ = self.forward(x)
+                pred = torch.mean(pred, dim=1)
+                mae += torch.sum(torch.abs(y - pred)).item()
+                kl += torch.sum(torch.abs(y-pred) < 5).item()
+            res_mae = mae /total_num
+            res_kl = kl/ total_num
+        return res_kl, res_mae
 
+  
 
 
     
