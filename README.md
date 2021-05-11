@@ -80,7 +80,7 @@ Basic hyperparameters:
 |----|-----|-----|
 |0.9|0.724|4.538|
 |0.85|0.711|4.551|
-|0.8|0.724|4.538|
+|0.8|0.712|4.594|
 
 
 Current best hyperparameters:
