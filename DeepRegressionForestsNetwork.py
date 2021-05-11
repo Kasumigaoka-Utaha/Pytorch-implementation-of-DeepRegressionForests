@@ -114,7 +114,7 @@ class pi_func():
         self.iter_num = iter_num # num iterations
 
     def init_kmeans(self,mean,sigma): 
-    # functions for init mean and sigma, but not used in this project
+    # functions for init mean and sigma
         for i in range(self.num_node):
             self.mean[:, i, :, :] = mean[i]
             self.sigma[:, i, :, :] = sigma[i]
