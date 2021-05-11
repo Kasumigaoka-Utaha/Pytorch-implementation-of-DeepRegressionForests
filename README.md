@@ -46,57 +46,28 @@ You can train the model by
     python train.py --data_dir ./FGNET/images
 
 # Experiment Training Results
+
 Test Dataset: FGNET
 
-Initial random setting performance:
+Train.opt = 'sgd'
 
-    Weight_decay = 5e-4
-    Momentum = 0.9
-    Learning rate = 0.1 with no step variance
-    Best_acc = 0.0368
-    Best_mae = 9.831
+Experiment 1: modify the initial learning rate
 
-Adam training performance (Experiment will be implemented further):
-
-    TRAIN.LR_DECAY_STEP = 20
-    TRAIN.LR_DECAY_RATE = 0.2
-    TRAIN.MOMENTUM = 0.9
-    TRAIN.WEIGHT_DECAY = 0.0
-    TRAIN.LR = 0.001
-    Best_acc = 0.0675
-    Best_mae = 19.162
-
-SGD training performance:
-Experiment 1: modify initial learning rate:
-
-    TRAIN.LR_DECAY_STEP = 20
-    TRAIN.LR_DECAY_RATE = 0.2
-    TRAIN.MOMENTUM = 0.9
-    TRAIN.WEIGHT_DECAY = 0.0
-
-|Initial learning rate|Best_acc|Best_mae|
-|----|-----|-----|
-|0.01|0.0368|13.258|
-|0.1|0.0675|9.49|
-|0.08|0.0368|9.409|
-|0.07|0.0675|9.445|
-|0.085|0.0675|9.456|
-
-Experiment 2: modify decay rate
-
-    TRAIN.LR_DECAY_STEP = 20
-    TRAIN.LR = 0.8
-    TRAIN.MOMENTUM = 0.9
-    TRAIN.WEIGHT_DECAY = 0.0
+Basic hyperparameters:
     
-|Initial learning rate|Best_acc|Best_mae|
+    TRAIN.LR_DECAY_STEP = 20
+    TRAIN.LR_DECAY_RATE = 0.2
+    TRAIN.MOMENTUM = 0.9
+    TRAIN.WEIGHT_DECAY = 0.0
+
+|Initial learning rate|Best_cs|Best_mae|
 |----|-----|-----|
-|0.1|0.0675|9.458|
-|0.2|0.0368|9.409|
+|0.01|0.356|5.18|
+|0.1|0.675|4.68|
+|0.09|0.724|4.538|
+|0.085|0.692|4.585|
 
-Exepriment 3: modify the momentum (will be udated later)
-
-Experiment 4: modify the weight decay (will be updated later)
+    
 
 # Further Plans
 These are some of my further plans:
