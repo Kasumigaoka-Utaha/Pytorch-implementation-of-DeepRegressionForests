@@ -89,18 +89,16 @@ class solver():
         self.model.train()
         loss_data = Average_data()
         accuracy_data = Average_data()
-        update_leaf_pred = []
-        update_leaf_label = []
         with tqdm(train_loader) as _tqdm:
+            update_leaf_pred = []
+            update_leaf_label = []
             for x, y in _tqdm:
                 x = x.to(device)
                 y = y.to(device)
                 cur_loss,outputs,pred4Pi = self.backward_theta(x,y)
                 update_leaf_pred.append(pred4Pi)
                 update_leaf_label.append(y.view(-1, 1))
-                update_pred = torch.cat(update_leaf_pred, dim=0).transpose(1, 2).detach().cpu().numpy()
-                update_label = torch.cat(update_leaf_label, dim=0).detach().cpu().numpy()
-                self.backward_pifunc(update_pred,update_label)
+                
                 _, predicted = outputs.max(1)
                 correct_num = predicted.eq(y).sum().item()
                 # measure accuracy and record loss
@@ -108,7 +106,10 @@ class solver():
                 loss_data.update(cur_loss, sample_num)
                 accuracy_data.update(correct_num, sample_num)
                 _tqdm.set_postfix(OrderedDict(stage="train", epoch=epoch, loss=loss_data.avg),
-                                acc=accuracy_data.avg, correct=correct_num, sample_num=sample_num) 
+                                acc=accuracy_data.avg, correct=correct_num, sample_num=sample_num)
+            update_pred = torch.cat(update_leaf_pred, dim=0).transpose(1, 2).detach().cpu().numpy()
+            update_label = torch.cat(update_leaf_label, dim=0).detach().cpu().numpy()
+            self.backward_pifunc(update_pred,update_label)
         self.scheduler.step()   
         return loss_data.avg, accuracy_data.avg
 
