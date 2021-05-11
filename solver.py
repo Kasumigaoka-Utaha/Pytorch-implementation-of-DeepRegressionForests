@@ -55,9 +55,9 @@ class solver():
             model = torch.nn.DataParallel(model)
             cudnn.benchmark = True
         if cfg.TRAIN.OPT == "sgd":
-            optimizer = torch.optim.SGD(self.model.feature_net.parameters(), lr=cfg.TRAIN.LR,momentum=cfg.TRAIN.MOMENTUM,weight_decay=cfg.TRAIN.WEIGHT_DECAY)
+            optimizer = optim.SGD(self.model.feature_net.parameters(), lr=cfg.TRAIN.LR,momentum=cfg.TRAIN.MOMENTUM,weight_decay=cfg.TRAIN.WEIGHT_DECAY)
         else:
-            optimizer = torch.optim.Adam(self.model.feature_net.parameters(), lr=cfg.TRAIN.LR)
+            optimizer = optim.Adam(self.model.feature_net.parameters(), lr=cfg.TRAIN.LR)
         start_epoch = 0
         self.optim = optimizer
         self.scheduler = StepLR(self.optim, step_size=cfg.TRAIN.LR_DECAY_STEP, gamma=cfg.TRAIN.LR_DECAY_RATE,last_epoch=start_epoch - 1)
