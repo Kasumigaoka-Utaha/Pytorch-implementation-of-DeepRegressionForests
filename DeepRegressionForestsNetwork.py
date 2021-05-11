@@ -97,10 +97,8 @@ def gaussian_func(y, mu, sigma):
 
     mu = np.reshape(mu, [1, num_tree, leaf_num])
     mu = mu.repeat(samples, 0)
-
     sigma = np.reshape(sigma, [1, num_tree, leaf_num])
     sigma = sigma.repeat(samples, 0)  
-
     res = 1.0 / np.sqrt(2 * 3.14 * (sigma + 1e-9)) * \
          (np.exp(- (y - mu) ** 2 / (2 * (sigma + 1e-9))) + 1e-9)
 
@@ -110,7 +108,8 @@ class pi_func():
     # leaf node distribution
     def __init__(self,num_tree,depth,task_num=1,iter_num=20,samples=50*16):
         super(pi_func, self).__init__()
-        self.num_node = pow(2,depth)
+        self.num_node = pow(2,depth-1)
+        self.num_tree = num_tree
         self.mean = np.random.rand(num_tree, self.num_node, task_num, 1).astype(np.float32)
         self.sigma = np.random.rand(num_tree, self.num_node, task_num, task_num).astype(np.float32)
         self.iter_num = iter_num
@@ -121,7 +120,7 @@ class pi_func():
             self.mean[:, i, :, :] = mean[i]
             self.sigma[:, i, :, :] = sigma[i]
     
-    def mean(self):
+    def get_mean(self):
         return torch.tensor(self.mean).squeeze().cuda()
     
     def getGaussionVal(self,y):
@@ -130,7 +129,7 @@ class pi_func():
     def update_leaf(self,x,y):        
         for i in range(self.iter_num):
             gauss = self.getGaussionVal(y)
-            leaf_prob = x*gauss
+            leaf_prob = x*(gauss+ 1e-9)
             leaf_prob_sum = np.sum(leaf_prob,axis=2, keepdims=True)
             zeta = leaf_prob/(leaf_prob_sum+1e-9)
             y_temp = np.expand_dims(y, 2)
@@ -161,8 +160,10 @@ class Tree(nn.Module):
     def forward(self,x):
         if x.is_cuda and not self.feature.is_cuda:
             self.feature = self.feature.cuda()
+        #print('feature size is',self.feature.size())
         temp = torch.mm(x,self.feature)
-        deter = nn.Sigmoid(temp)
+        #print('temp size is ',temp.size())
+        deter = torch.sigmoid(temp)
         deter = torch.unsqueeze(deter,2)
         deter_inv = 1-deter
         deter = torch.cat((deter,deter_inv),dim=2)
@@ -172,8 +173,8 @@ class Tree(nn.Module):
         end_idx = 1
         for n_layer in range(0, self.depth - 1):
             _mu = _mu.view(batch_size,-1,1).repeat(1,1,2)
-            _decision = decision[:, begin_idx:end_idx, :]  
-            _mu = _mu*_decision 
+            _deter = deter[:, begin_idx:end_idx, :]  
+            _mu = _mu*_deter
             begin_idx = end_idx
             end_idx = begin_idx + 2 ** (n_layer+1)
         mu = _mu.view(batch_size,self.leaf_num)
@@ -197,7 +198,7 @@ class Forest(nn.Module):
         for tree in self.trees:
             tree_out = tree(x)
             probs.append(tree_out.unsqueeze(2))
-        pi = self.dist.get_mean()
+        pi = self.pi.get_mean()
         probs = torch.cat(probs,dim=2)
         prob = probs * pi.transpose(0, 1).unsqueeze(0)     
         prob = torch.sum(prob, dim=1) 
@@ -213,6 +214,6 @@ class DeepRegressionForestNetwork(nn.Module):
     
     def forward(self,x):
         out = self.feature_net(x)
-        out = out.view(out.size()[0],-1)
+        out = out.view(x.size()[0],-1)
         out = self.forest(out)
         return out
