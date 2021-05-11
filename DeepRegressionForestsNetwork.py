@@ -129,7 +129,7 @@ class pi_func():
         # update the pi function for a few iterations
         for i in range(self.iter_num):
             # extra 1e-9 to avoidzero divisor
-            # calculate zeta
+            # calculate zeta (formula is under formula 12)
             gauss = self.getGaussionVal(y)
             leaf_prob = x*(gauss+ 1e-9)
             leaf_prob_sum = np.sum(leaf_prob,axis=2, keepdims=True)
@@ -140,13 +140,13 @@ class pi_func():
             zeta_y = np.sum(zeta*y_temp,axis=0)
             zeta_sum = np.sum(zeta,axis=0)
             mean = zeta_y/(zeta_sum+1e-9)
-            # use zeta to calculate the new mean in the next iteration
+            # use zeta to calculate the new mean in the next iteration by formula(16)
             new_mean = y_temp-np.expand_dims(mean,axis=0)
             self.mean[:,:,0,0] = mean
             # calcualte the sum of sigma * (y-mean)(at t+1) * (y-mean)(at t+1 transpose) 
             zeta_for_sigma = zeta * new_mean * new_mean
             zeta_for_sigma = np.sum(zeta_for_sigma, 0)
-            # calculate the sigma for the next iteration
+            # calculate the sigma for the next iteration by formula(20)
             sigma = zeta_for_sigma / (zeta_sum + 1e-9)
             self.sigma[:,:,0,0] = sigma
 
