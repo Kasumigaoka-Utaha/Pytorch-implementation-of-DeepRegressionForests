@@ -9,7 +9,7 @@ import numpy as np
 import pickle
 
 class getFeature(nn.Module):
-
+    # Network to get image features, 5 CNN layer and 3 fc layer 
     def __init__(self,input_channels,nout):
         super(getFeature, self).__init__()
         #first CNN layer
@@ -89,19 +89,18 @@ class getFeature(nn.Module):
         return out
 
 def gaussian_func(y, mu, sigma):
+    # gaussian distribution implementation, to avoid 0 as divisor, we add 1e-9
     samples = y.shape[0]
     num_tree, leaf_num, _, _ = mu.shape
     y = np.reshape(y, [samples, 1, 1])
     y = np.repeat(y, num_tree, 1)
     y = np.repeat(y, leaf_num, 2)   
-
     mu = np.reshape(mu, [1, num_tree, leaf_num])
     mu = mu.repeat(samples, 0)
     sigma = np.reshape(sigma, [1, num_tree, leaf_num])
     sigma = sigma.repeat(samples, 0)  
     res = 1.0 / np.sqrt(2 * 3.14 * (sigma + 1e-9)) * \
          (np.exp(- (y - mu) ** 2 / (2 * (sigma + 1e-9))) + 1e-9)
-
     return res
 
 class pi_func():
@@ -116,6 +115,7 @@ class pi_func():
         self.samples = samples
 
     def init_kmeans(self,mean,sigma): 
+    # functions for init mean and sigma, but not used in this project
         for i in range(self.num_node):
             self.mean[:, i, :, :] = mean[i]
             self.sigma[:, i, :, :] = sigma[i]
@@ -153,11 +153,13 @@ class Tree(nn.Module):
         self.depth = depth
         self.leaf_num = pow(2,depth-1)
         features = np.eye(input_feature)
+        # randomly choose a feature at one dimension within the range of nout
         choose_node = np.random.choice(np.arange(input_feature), self.leaf_num-1, replace=False)
         self.feature = features[choose_node].T
         self.feature = Parameter(torch.from_numpy(self.feature).type(torch.FloatTensor),requires_grad=False)
 
     def forward(self,x):
+        # to compute the probability of sample x falling into leaf node l, use formula(2)
         if x.is_cuda and not self.feature.is_cuda:
             self.feature = self.feature.cuda()
         #print('feature size is',self.feature.size())
@@ -171,6 +173,7 @@ class Tree(nn.Module):
         _mu = Variable(x.data.new(batch_size,1,1).fill_(1.))
         begin_idx = 0
         end_idx = 1
+        # compute the route probability for the tree
         for n_layer in range(0, self.depth - 1):
             _mu = _mu.view(batch_size,-1,1).repeat(1,1,2)
             _deter = deter[:, begin_idx:end_idx, :]  
@@ -194,6 +197,7 @@ class Forest(nn.Module):
         self.pi = pi_func(num_tree,depth)
 
     def forward(self,x):
+        # compute the conditional probability by formula(3)
         probs = []
         for tree in self.trees:
             tree_out = tree(x)
