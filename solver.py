@@ -25,6 +25,7 @@ from Input import FaceDataset
 from defaults import _C as cfg
 
 class Average_data(object):
+    # class to calculate average loss
     def __init__(self):
         self.val = 0
         self.avg = 0
@@ -32,6 +33,7 @@ class Average_data(object):
         self.count = 0
 
     def update(self, val, n=1):
+        # update the results
         self.val = val
         self.sum += val
         self.count += n
@@ -41,12 +43,14 @@ class solver():
     # training device
     def __init__(self,device,nout=128,num_tree=5,depth=6):
         super(solver, self).__init__()
+        # model construction
         feature_net = getFeature(3,nout)
         forest = NDF.Forest(num_tree=num_tree, depth=depth, input_feature=nout)
         model = DeepRegressionForestNetwork(feature_net,forest)
         self.model = model
         self.num_node = pow(2,depth-1)
         model = model.to(device)
+        # set the optimizer and the scheduler
         if device == 'cuda':
             model = torch.nn.DataParallel(model)
             cudnn.benchmark = True
